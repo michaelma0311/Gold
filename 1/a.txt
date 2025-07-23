@@ -88,70 +88,71 @@ return true;
 };
 SEGMENT TREE (SUM FROM RANGE L-R)
 
-template <class T> struct Seg {
-int n;
-const T ID = 0;
-vector<T> seg;
+vector<long long> treelis;
 
-T comb(T a, T b) { return a + b; }
-
-void init(int _n) {
-n = _n;
-seg.assign(2 * n, ID);
+void build(vector<long long>& arr, long long treeind, long long curl, long long curr) {
+    if (curl == curr) {
+        treelis[treeind] = arr[curl];
+    } else {
+        long long mid = (curl + curr) / 2;
+        build(arr, 2*treeind+1, curl, mid);
+        build(arr, 2*treeind+2, mid + 1, curr);
+        treelis[treeind] = treelis[2*treeind+1] + treelis[2*treeind+2];
+    }
 }
 
-void pull(int p) { seg[p] = comb(seg[2 * p], seg[2 * p + 1]); }
-
-// update the value at position p
-void upd(int p, T val) {
-seg[p += n] = val;
-
-for (p /= 2; p; p /= 2) { pull(p); }
+long long query(long long treeind, long long curl, long long curr, long long l, long long r) {
+    //cout << treeind << ' ' << curl << ' ' << curr << endl;
+    if (r < curl || curr < l) {
+        return 0;
+    }
+    if (l <= curl && curr <= r) {
+        return treelis[treeind];
+    }
+    long long mid = (curl + curr) / 2;
+    long long ls = query(2*treeind+1, curl, mid, l, r);
+    long long rs = query(2*treeind+2, mid + 1, curr, l, r);
+    return ls + rs;
 }
 
-// get the sum on the interval [l, r]
-T query(int l, int r) {
-T ra = ID, rb = ID;
-for (l += n, r += n + 1; l < r; l /= 2, r /= 2) {
-if (l & 1) ra = comb(ra, seg[l++]);
-if (r & 1) rb = comb(seg[--r], rb);
+void update(long long treeind, long long curl, long long curr, long long ind, long long val) {
+    if (curl == curr) {
+        treelis[treeind] = val;
+    } else {
+        long long mid = (curl + curr) / 2;
+        if (ind <= mid) {
+            update(2*treeind+1, curl, mid, ind, val);
+        } else {
+            update(2*treeind+2, mid + 1, curr, ind, val);
+        }
+        treelis[treeind] = treelis[2*treeind+1] + treelis[2*treeind+2];
+    }
 }
-return comb(ra, rb);
+
+
+
+int main() {
+  scanf("%d", &n);
+  for (int i = 0; i < n; ++i) scanf("%d", t + n + i);
+  build();
+  modify(0, 1);
+  printf("%d\n", query(3, 11));
+  return 0;
 }
-};
 
 BINARY INDEXED TREE (BETTER VERSION OF PREFIX SUMS)
 
-int sum(int k){ //sum a[1 ... k]
-
-   int ans = 0;
-
-   while(k > 0){
-
-     ans += BIT[k];
-
-     k -= k&-k;
-
-   }
-
-   return ans;
-
+void update(vector<int>& tr, int pos, int val) {
+	for (int i = pos; i <= tr.size(); i |= (i + 1)) {
+		tr[i] += val;		
+	}
 }
-
-
-
-
-
-void update(int k, int v){ // a[k] += v
-
-   while(k <= n){
-
-      BIT[k] += v;
-
-      k += k&-k;
-
-   }
-
+int query(vector<int>& tr, int pos) {
+	int res = 0;
+	for (int i = pos; i >= 0; i = (i&(i + 1)) - 1) {
+		res += tr[i];	
+	}
+	return res;
 }
 
 template <class T> class BIT {
@@ -305,3 +306,5 @@ int gcd(int a, int b)
         return b;
     return gcd(b % a, a);
 }
+
+#

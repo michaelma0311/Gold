@@ -45,7 +45,7 @@ void solve()    {
         int direc = q.top().second.second;
         q.pop();
         cout << "indies " << ind << endl;
-        if (visited[ind] || visited[ind+1]) {
+        if (visited[ind] || visited[adjright[ind]]) {
             continue;
         }
         int observ;
