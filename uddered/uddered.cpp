@@ -2,43 +2,71 @@
 using namespace std;
 #define int long long
 signed main() {
-	//freopen("a.in", "r", stdin);
 	string s;
 	cin >> s;
-	map<int, int> ma;
-	int ind = 0;
-	for (int i = 0; i < s.size(); i++)	{
-		if (ma.find(s[i]) == ma.end())	{
-			ma[s[i]] = ind++;
+	vector<vector<int>> nums(26);
+	bool fir = true;
+	for (int i = 0; i < s.length(); i++)	{
+		if (s[i] == 'm' || s[i] == 'i' || s[i]=='l' || s[i] == 'd' || s[i] == 'r' || s[i] == 'e')	{
+			fir = false;
+			break;
 		}
-	} 
-	int n = ind;
-	vector<vector<int>> adj(n);
-	for (int i = 0; i < n; i++)	{
-		adj[i].resize(n);
 	}
-	for (int i = 1; i < s.size(); i++)	{
-		adj[ma[s[i-1]]][ma[s[i]]] += 1;
+	string a = "abcfghjknopqstuvwxyz";
+	if (!fir)	{
+		a = "mildrebs";
 	}
-	vector<int> dp(1 << n);
-	fill(dp.begin(), dp.end(), LLONG_MAX);
-	dp[0] = 1;
-	for (int mask = 1; mask < (1 << n); mask++)	{
-		for (int j = 0; j < n; j++)	{
-			if (mask & (1 << j))	{
-				int cursum = dp[mask ^ (1 << j)];
-				for (int k = 0; k < n; k++)	{
-					if (mask & (1 << k))	{
-						cursum += adj[j][k];
+	for (int i = 0; i < 26; i++)	{
+		nums[i].resize(26);
+	}
+	vector<vector<int>> prefsu(21);
+	
+	map<char, int> ma;
+	int siz = a.size();
+	for (int i = 0; i < a.size(); i++) {
+		ma[a[i]] = i;
+	}
+	for (int i =0; i < s.length()-1; i++)	{
+		//cout << s[i] << ' ' << ma[s[i]] << endl;
+		nums[ma[s[i]]][ma[s[i+1]]] += 1;
+	}
+	for (int i = 0; i < siz; i++)	{
+		prefsu[i].resize(1<<siz);
+	}
+	//cout <<"ADF " << endl;
+	/*for (int i = 0; i < siz; i++)	{
+		cout << i << endl;
+		for (int j = 1; j < (1 << siz); j++)	{
+			for (int k = 0; k < siz; k++)	{
+				//cout << i << ' ' << k << endl;
+				if ((1 << k) > j)	{
+					break;
+				}
+				if (j & (1 << k))	{
+					//cout << "WGWEG " << endl;
+					prefsu[i][j] += nums[ma[a[i]]][ma[a[k]]];
+				}
+			}
+		}
+	}*/
+	//cout << "ADD" << endl;
+	int ans = INT_MAX;
+	vector<int> dp((1<<siz), INT_MAX);
+	dp[0] = 0;
+	for (int i = 1; i < (1<<siz); i++)	{
+		for (int k = 0; k < siz; k++)	{
+			if (i & (1 << k))	{
+				int su = 0;
+				for (int j = 0; j < siz; j++)	{
+					if (i & (1 << j))	{
+						su += nums[k][j];
 					}
 				}
-				dp[mask] = min(dp[mask], cursum);
+				//cout << su << endl;
+				dp[i] = min(dp[i], dp[i^(1<<k)] + su);
 			}
 		}
 	}
-	/*for (int i = 0; i < (1 << n); i++)	{
-		cout << i << ' ' << dp[i] << endl;
-	}
-		*/
-	cout << dp[(1 << n)-1] << "\n";
+	cout << dp[(1 << siz)-1]+1 << endl;
+	
 }

@@ -306,5 +306,27 @@ int gcd(int a, int b)
         return b;
     return gcd(b % a, a);
 }
+int egcd(int a, int b, int &x, int &y)
+{
+    if (b == 0) {
+        x = (a >= 0 ? 1 : -1);
+        y = 0;
+        return (a >= 0 ? a : -a);
+    }
+    int x1, y1;
+    int g = egcd(b, a % b, x1, y1);
+    x = y1;
+    y = x1 - (a / b) * y1;
+    return g;
+}
+int modInverse(int A, int M)
+{
+    A %= M; if (A < 0) A += M;
+    int x, y;
+    int g = egcd(A, M, x, y);
+    if (g != 1) return -1;       
+    x %= M; if (x < 0) x += M;
+    return x;
+}
 
 #
